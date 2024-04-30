@@ -4,43 +4,36 @@ const bytecode = '0x6080604052348015600f57600080fd5b5060f78061001e6000396000f3fe
 const abi = '[ { "type": "function", "name": "increment", "inputs": [], "outputs": [], "stateMutability": "nonpayable" }, { "type": "function", "name": "number", "inputs": [], "outputs": [ { "name": "", "type": "uint256", "internalType": "uint256" } ], "stateMutability": "view" }, { "type": "function", "name": "setNumber", "inputs": [ { "name": "newNumber", "type": "uint256", "internalType": "uint256" } ], "outputs": [], "stateMutability": "nonpayable" } ]'
 
 const provider = new JsonRpcProvider('http://localhost:8545')
-
 const key = '8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63'
-const wallet = new ethers.Wallet(key, provider)
-const signer = wallet.connect(provider)
+const wallet00 = new ethers.Wallet(key, provider)
+const signer00 = wallet00.connect(provider)
 
 async function main() {
-
-    const factory = new ethers.ContractFactory(abi, bytecode, wallet)
-    let nonce = await provider.getTransactionCount(wallet)
-
-    const txn = await factory.deploy({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
-    
-    const deployment = await txn.waitForDeployment()
-    console.log(await deployment.getAddress())
-
+    const factory = new ethers.ContractFactory(abi, bytecode, wallet00)
+    let nonce = await provider.getTransactionCount(wallet00)
+    const txn00 = await factory.deploy({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
+    const deployment = await txn00.waitForDeployment()
     const address = await deployment.getAddress()
+
+
+    for (let i = 0; i < 1000; i++) {
+        const wallet = ethers.Wallet.createRandom(provider)
+        const signer = wallet.connect(provider)      
+        const contract = new ethers.Contract(
+            address,
+            abi,
+            signer
+        )
+        await contract.increment({gasLimit: '3000000', gasPrice: '0x0', nonce: 0})
+    }
+
+    await new Promise(f => setTimeout(f, 1_000));
 
     const contract = new ethers.Contract(
         address,
         abi,
-        signer
+        signer00
     )
-
-    contract['number'].staticCall().then(result => {
-        console.log(`result: ` + result)
-    }).catch(error => {
-        console.log(`error: ` + error)
-    })
-
-    nonce = await provider.getTransactionCount(wallet)
-    let increment00 = await contract.increment({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
-    await increment00.wait()
-
-    nonce = await provider.getTransactionCount(wallet)
-    let increment01 = await contract.increment({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
-    await increment01.wait()
-
     let output = await contract.number()
     console.log(output)
 
