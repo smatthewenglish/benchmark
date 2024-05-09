@@ -5,46 +5,61 @@ const abi = '[ { "type": "function", "name": "increment", "inputs": [], "outputs
 
 const provider = new JsonRpcProvider('http://localhost:8545')
 
-const key = '8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63'
+//const key = 'c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3'
+//const key = 'ae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f'
+//const key = '0x7717c402b860e2c27f25a8d72f262907a64135ed42502049699dc3b0cc1a1c0c'
+const key = '0x42ae8a6a1a0f79e6704cb25c09a847b2b82eb02fa15dbb4d8aac53152abe6959'
 const wallet = new ethers.Wallet(key, provider)
 const signer = wallet.connect(provider)
 
 async function main() {
 
-    const factory = new ethers.ContractFactory(abi, bytecode, wallet)
-    let nonce = await provider.getTransactionCount(wallet)
+    const url = 'http://localhost:8545'
 
-    const txn = await factory.deploy({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
-    
-    const deployment = await txn.waitForDeployment()
-    console.log(await deployment.getAddress())
-
-    const address = await deployment.getAddress()
-
-    const contract = new ethers.Contract(
-        address,
-        abi,
-        signer
-    )
-
-    contract['number'].staticCall().then(result => {
-        console.log(`result: ` + result)
+    var customHttpProvider = new ethers.JsonRpcProvider(url)
+    await customHttpProvider.getBlockNumber().then((result) => {
+        console.log("Current block number: " + result);
     }).catch(error => {
         console.log(`error: ` + error)
     })
 
-    nonce = await provider.getTransactionCount(wallet)
-    let increment00 = await contract.increment({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
-    await increment00.wait()
+    const balance = await provider.getBalance(wallet.address)
+    console.log(`balance: ` + balance)
 
-    nonce = await provider.getTransactionCount(wallet)
-    let increment01 = await contract.increment({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
-    await increment01.wait()
+    // const factory = new ethers.ContractFactory(abi, bytecode, wallet)
+    // let nonce = await provider.getTransactionCount(wallet)
 
-    let output = await contract.number()
-    console.log(output)
+    // const txn = await factory.deploy({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
 
-    
+    // const deployment = await txn.waitForDeployment()
+    // console.log(await deployment.getAddress())
+
+    // const address = await deployment.getAddress()
+
+    // const contract = new ethers.Contract(
+    //     address,
+    //     abi,
+    //     signer
+    // )
+
+    // contract['number'].staticCall().then(result => {
+    //     console.log(`result: ` + result)
+    // }).catch(error => {
+    //     console.log(`error: ` + error)
+    // })
+
+    // nonce = await provider.getTransactionCount(wallet)
+    // let increment00 = await contract.increment({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
+    // await increment00.wait()
+
+    // nonce = await provider.getTransactionCount(wallet)
+    // let increment01 = await contract.increment({gasLimit: '3000000', gasPrice: '0x0', nonce: nonce})
+    // await increment01.wait()
+
+    // let output = await contract.number()
+    // console.log(output)
+
+
 
     process.exit()
 }
