@@ -9,10 +9,17 @@ const key = '0x42ae8a6a1a0f79e6704cb25c09a847b2b82eb02fa15dbb4d8aac53152abe6959'
 const wallet00 = new ethers.Wallet(key, provider)
 const signer00 = wallet00.connect(provider)
 
+//curl -X POST --data '{"jsonrpc":"2.0","method":"eth_gasPrice","params":[],"id":53}' http://localhost:8545
 async function main() {
+
+    const balance00 = await provider.getBalance(wallet00.address)
+    console.log(`balance00: ` + balance00)
+
     const factory = new ethers.ContractFactory(abi, bytecode, wallet00)
     let nonce = await provider.getTransactionCount(wallet00)
-    const txn00 = await factory.deploy({gasLimit: '300000', gasPrice: '100', nonce: nonce})
+    //const txn00 = await factory.deploy({gasLimit: '300000', gasPrice: '7', nonce: nonce})
+    //const txn00 = await factory.deploy({gasLimit: '300000', gasPrice: '0x00', nonce: nonce})
+    const txn00 = await factory.deploy()
     const deployment = await txn00.waitForDeployment()
     const address = await deployment.getAddress()
     console.log("address: " + address)
@@ -23,15 +30,19 @@ async function main() {
         signer00
     )
     nonce = await provider.getTransactionCount(wallet00)
-    const txn01 = await contract.increment({gasLimit: '300000', gasPrice: '100', nonce: nonce})
+    //const txn01 = await contract.increment({gasLimit: '300000', gasPrice: '7', nonce: nonce})
+    const txn01 = await contract.increment()
+    console.log(txn01)
     await txn01.wait()
     
     nonce = await provider.getTransactionCount(wallet00)
-    const txn02 = await contract.increment({gasLimit: '300000', gasPrice: '100', nonce: nonce})
+    //const txn02 = await contract.increment({gasLimit: '300000', gasPrice: '7', nonce: nonce})
+    const txn02 = await contract.increment()
     await txn02.wait()
     
     nonce = await provider.getTransactionCount(wallet00)
-    const txn03 = await contract.increment({gasLimit: '300000', gasPrice: '100', nonce: nonce})
+    //const txn03 = await contract.increment({gasLimit: '300000', gasPrice: '7', nonce: nonce})
+    const txn03 = await contract.increment()
     await txn03.wait()
     
     let output = await contract.number()
@@ -58,6 +69,13 @@ async function main() {
     // )
     // let output = await contract.number()
     // console.log(output)
+
+    const balance01 = await provider.getBalance(wallet00.address)
+    console.log(`balance01: ` + balance01)
+
+
+    //999999999999487830661485848
+    //999999999999285103660066759
 
     
 
